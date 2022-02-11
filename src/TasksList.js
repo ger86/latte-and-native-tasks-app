@@ -1,20 +1,19 @@
 import React, {useState} from 'react';
 import {
-  Input,
-  IconButton,
-  Checkbox,
-  Text,
   Box,
+  Heading,
+  Input,
   VStack,
   HStack,
-  Heading,
-  Center,
-  useToast,
+  Text,
   AddIcon,
-  CloseIcon
+  Checkbox,
+  IconButton,
+  CloseIcon,
+  useToast
 } from 'native-base';
 
-const instState = [
+const initialTasks = [
   {
     title: 'Preparar contenido del capítulo',
     isCompleted: true
@@ -30,111 +29,101 @@ const instState = [
 ];
 
 export default function TasksList() {
-  const [list, setList] = useState(instState);
+  const [tasks, setTasks] = useState(initialTasks);
   const [inputValue, setInputValue] = useState('');
   const toast = useToast();
 
-  function addItem(title) {
-    if (title === '') {
+  function handleDelete(indexToDelete) {
+    setTasks(function (currentTasks) {
+      return currentTasks.filter((_, index) => index !== indexToDelete);
+    });
+  }
+
+  function handleStatusChange(indexToChange) {
+    setTasks(function (currentTasks) {
+      const newTasks = [...currentTasks];
+      newTasks[indexToChange].isCompleted = !newTasks[indexToChange].isCompleted;
+      return newTasks;
+    });
+  }
+
+  function onChangeText(v) {
+    setInputValue(v);
+  }
+
+  function addTask() {
+    if (inputValue !== '') {
       toast.show({
-        title: 'Please Enter Text',
-        status: 'warning'
+        title: 'Tarea creada',
+        status: 'success'
       });
-      return;
+      setTasks(function (currentTasks) {
+        return [
+          ...currentTasks,
+          {
+            title: inputValue,
+            isCompleted: false
+          }
+        ];
+      });
     }
-
-    setList(function (prevList) {
-      return [
-        ...prevList,
-        {
-          title: title,
-          isCompleted: false
-        }
-      ];
-    });
-  }
-
-  function handleDelete(index) {
-    setList((prevList) => {
-      return prevList.filter((_, itemI) => itemI !== index);
-    });
-  }
-
-  function handleStatusChange(index) {
-    setList((prevList) => {
-      const newList = [...prevList];
-      newList[index].isCompleted = !newList[index].isCompleted;
-      return newList;
-    });
   }
 
   return (
-    <Center w="100%">
-      <Box maxW="300" w="100%">
-        <Heading mb="2" size="md">
-          Tareas
-        </Heading>
-        <VStack space={4}>
+    <Box>
+      <Heading mb="2" size="md">
+        Tareas
+      </Heading>
+      <VStack>
+        <Box>
           <HStack space={2} h={8} mb={4}>
             <Input
               flex={1}
-              onChangeText={(v) => setInputValue(v)}
+              onChangeText={onChangeText}
               value={inputValue}
-              placeholder="Add Task"
+              placeholder="Añadir tarea"
             />
             <IconButton
               borderRadius="sm"
               variant="solid"
               icon={<AddIcon size={4} />}
-              onPress={() => {
-                addItem(inputValue);
-                setInputValue('');
-              }}
+              onPress={addTask}
             />
           </HStack>
-          <VStack space={2}>
-            {list.map((item, itemI) => (
-              <HStack
-                w="100%"
-                h="25"
-                mb={5}
-                justifyContent="space-between"
-                alignItems="center"
-                key={item.title + itemI.toString()}
-              >
-                <Checkbox
-                  isChecked={item.isCompleted}
-                  onChange={() => handleStatusChange(itemI)}
-                  value={item.title}
-                  accessibilityLabel={item.title}
-                />
-                <Text
-                  width="100%"
-                  flexShrink={1}
-                  textAlign="left"
-                  mx="2"
-                  strikeThrough={item.isCompleted}
-                  _light={{
-                    color: item.isCompleted ? 'gray.400' : 'coolGray.800'
-                  }}
-                  _dark={{
-                    color: item.isCompleted ? 'gray.400' : 'coolGray.50'
-                  }}
-                  onPress={() => handleStatusChange(itemI)}
-                >
-                  {item.title}
-                </Text>
-                <IconButton
-                  size="sm"
-                  colorScheme="trueGray"
-                  icon={<CloseIcon size={4} />}
-                  onPress={() => handleDelete(itemI)}
-                />
-              </HStack>
-            ))}
-          </VStack>
-        </VStack>
-      </Box>
-    </Center>
+        </Box>
+        {tasks.map((task, index) => (
+          <HStack
+            w="100%"
+            h="25"
+            mb={5}
+            justifyContent="space-between"
+            alignItems="center"
+            key={task.title}
+          >
+            <Checkbox
+              isChecked={task.isCompleted}
+              onChange={() => handleStatusChange(index)}
+              value={task.title}
+              accessibilityLabel={task.title}
+            />
+            <Text
+              width="100%"
+              flexShrink={1}
+              textAlign="left"
+              mx="2"
+              strikeThrough={task.isCompleted}
+            >
+              {task.title}
+            </Text>
+            <IconButton
+              size="sm"
+              colorScheme="trueGray"
+              icon={<CloseIcon size={4} />}
+              onPress={() => handleDelete(index)}
+            />
+          </HStack>
+        ))}
+      </VStack>
+    </Box>
   );
 }

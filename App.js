@@ -1,16 +1,16 @@
-import {Center, NativeBaseProvider} from 'native-base';
 import React from 'react';
-import {SafeAreaView} from 'react-native';
+import {Box, NativeBaseProvider} from 'native-base';
 import TasksList from '#/TasksList';
+import {SafeAreaView} from 'react-native';
 
 export default function App() {
   return (
-    <SafeAreaView>
-      <NativeBaseProvider>
-        <Center flex={1} px="3">
+    <NativeBaseProvider>
+      <SafeAreaView>
+        <Box py="4" px="3">
           <TasksList />
-        </Center>
-      </NativeBaseProvider>
-    </SafeAreaView>
+        </Box>
+      </SafeAreaView>
+    </NativeBaseProvider>
   );
 }
